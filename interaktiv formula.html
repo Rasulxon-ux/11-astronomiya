@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-sinf Astronomiya — Interaktiv Darslik</title>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #131b2e;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --border: #1e293b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        body.light {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); transition: 0.3s; line-height: 1.6; }
+        
+        /* Header */
+        header {
+            background: var(--card); border-bottom: 1px solid var(--border);
+            padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.25rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .controls { display: flex; gap: 10px; align-items: center; }
+        button {
+            background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        button:hover { background: var(--accent-hover); }
+        button.outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        button.outline:hover { border-color: var(--accent); }
+
+        /* Hero */
+        .hero {
+            text-align: center; padding: 35px 5%;
+            background: radial-gradient(circle at top, rgba(56,189,248,0.15), transparent 70%);
+        }
+        .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+        .hero p { color: var(--muted); max-width: 650px; margin: 0 auto 20px; }
+        .stats { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .stat-box { background: var(--card); border: 1px solid var(--border); padding: 10px 20px; border-radius: 12px; }
+        .stat-box strong { display: block; font-size: 1.3rem; color: var(--accent); }
+
+        /* Navigation Tabs */
+        .tabs { display: flex; justify-content: center; gap: 8px; margin: 20px 5%; flex-wrap: wrap; }
+        .tab-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; }
+        .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* Container */
+        .container { max-width: 1100px; margin: 0 auto 50px; padding: 0 5%; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Search & Grid */
+        .search-bar { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); margin-bottom: 20px; font-size: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent); }
+        .card p { font-size: 0.92rem; color: var(--muted); margin-bottom: 15px; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
+
+        /* 3D Flip Formula Cards */
+        .flip-card { background-color: transparent; height: 210px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            border-radius: 14px; border: 1px solid var(--border); padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .flip-card-front { background: var(--card); }
+        .flip-card-front:hover { border-color: var(--accent); }
+        .flip-card-back { background: linear-gradient(135deg, var(--card), rgba(56,189,248,0.18)); transform: rotateY(180deg); text-align: left; align-items: flex-start; }
+        .formula-math { font-family: 'Courier New', monospace; font-size: 1.35rem; font-weight: bold; color: var(--accent); margin: 12px 0; background: rgba(56,189,248,0.1); padding: 8px 16px; border-radius: 8px; }
+        .flip-hint { font-size: 0.8rem; color: var(--muted); margin-top: auto; }
+
+        /* Glossary */
+        .glossary-item { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; }
+        .glossary-term { font-size: 1.1rem; font-weight: 700; color: var(--accent); display: flex; justify-content: space-between; }
+        .glossary-tag { font-size: 0.75rem; background: rgba(56,189,248,0.15); color: var(--accent); padding: 2px 8px; border-radius: 6px; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+        .modal.open { display: flex; }
+        .modal-content { background: var(--card); border: 1px solid var(--border); max-width: 700px; width: 100%; border-radius: 16px; padding: 25px; max-height: 85vh; overflow-y: auto; }
+        .formula-box { background: rgba(56,189,248,0.1); border-left: 4px solid var(--accent); padding: 12px; margin: 15px 0; border-radius: 6px; font-family: monospace; font-size: 1.05rem; }
+
+        /* Simulators */
+        .sim-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+        canvas { background: #050811; border-radius: 10px; width: 100%; max-width: 600px; display: block; margin: 15px auto; border: 1px solid var(--border); }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+        input[type="range"] { flex: 1; min-width: 200px; }
+
+        /* Quiz */
+        .quiz-q { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+        .option { display: block; width: 100%; text-align: left; background: var(--bg); color: var(--text); border: 1px solid var(--border); margin-top: 8px; padding: 10px 14px; border-radius: 8px; }
+        .option.correct { background: var(--success); color: #fff; border-color: var(--success); }
+        .option.wrong { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+        footer { text-align: center; padding: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">🌌 Astronomiya 11-sinf</div>
+    <div class="controls">
+        <span id="progress-badge" style="font-size: 0.9rem; color: var(--accent); font-weight: bold;">0% o'rganildi</span>
+        <button class="outline" onclick="toggleTheme()">🌓 Mavzu</button>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>Astronomiya 11-sinf — Interaktiv Darslik</h1>
+    <p>Mavzular, interaktiv laboratoriya, aylanuvchi formula kartochkalari, atamalar lug'ati va testlar.</p>
+    <div class="stats">
+        <div class="stat-box"><strong id="done-count">0 / 10</strong>Mavzu</div>
+        <div class="stat-box"><strong>10 ta</strong>Formula kartochkasi</div>
+        <div class="stat-box"><strong>18 ta</strong>Asosiy atama</div>
+    </div>
+</section>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('topics', this)">📚 Mavzular</button>
+    <button class="tab-btn" onclick="switchTab('formulas', this)">🃏 Formula Kartochkalari</button>
+    <button class="tab-btn" onclick="switchTab('glossary', this)">📖 Atamalar Lug'ati</button>
+    <button class="tab-btn" onclick="switchTab('lab', this)">🧪 Laboratoriya</button>
+    <button class="tab-btn" onclick="switchTab('quiz', this)">🏆 Test</button>
+</div>
+
+<div class="container">
+    <!-- 1. MAVZULAR -->
+    <div id="topics" class="section active">
+        <input type="text" class="search-bar" id="searchInput" placeholder="Mavzu nomini qidiring..." onkeyup="renderTopics()">
+        <div class="grid" id="topics-grid"></div>
+    </div>
+
+    <!-- 2. FORMULA KARTOCHKALARI -->
+    <div id="formulas" class="section">
+        <p style="color:var(--muted); margin-bottom:15px;">💡 <strong>Ko'rsatma:</strong> Kattaliklarning izohi va o'lchov birliklarini ko'rish uchun istalgan kartochka ustiga bosing.</p>
+        <div class="grid" id="formula-cards-grid"></div>
+    </div>
+
+    <!-- 3. ATAMALAR LUG'ATI -->
+    <div id="glossary" class="section">
+        <input type="text" class="search-bar" id="glossarySearch" placeholder="Atamani qidiring (masalan: Parsek, Ekliptika, Zenit, Kvazar)..." onkeyup="renderGlossary()">
+        <div id="glossary-list"></div>
+    </div>
+
+    <!-- 4. LABORATORIYA -->
+    <div id="lab" class="section">
+        <div class="sim-box">
+            <h3>🪐 1. Quyosh sistemasi va Kepler qonunlari simulyatori</h3>
+            <p style="color:var(--muted); font-size:0.9rem;">Planetalar harakati tezligini o'zgartiring va orbital davrlarni kuzating.</p>
+            <canvas id="solarCanvas" width="600" height="320"></canvas>
+            <div class="slider-group">
+                <label>Tezlik: <strong id="speedVal">1x</strong></label>
+                <input type="range" id="speedSlider" min="0" max="5" step="0.5" value="1" oninput="document.getElementById('speedVal').innerText=this.value+'x'">
+            </div>
+        </div>
+
+        <div class="sim-box">
+            <h3>🚀 2. Tsiolkovskiy raketa tenglamasi kalkulyatori</h3>
+            <p style="color:var(--muted); font-size:0.9rem;">Gaz chiqish tezligi (u) va massa nisbati (m₀/m) orqali raketa tezligini hisoblang.</p>
+            <div class="slider-group">
+                <label>Gaz tezligi u (km/s): <strong id="uVal">3.2</strong></label>
+                <input type="range" id="uSlider" min="1" max="5" step="0.1" value="3.2" oninput="calcRocket()">
+            </div>
+            <div class="slider-group">
+                <label>Massa nisbati (m₀ / m): <strong id="mVal">10</strong></label>
+                <input type="range" id="mSlider" min="2" max="25" step="1" value="10" oninput="calcRocket()">
+            </div>
+            <div class="formula-box" id="rocketResult">Natija: Δv = 7.37 km/s (1-kosmik tezlikka yaqin)</div>
+        </div>
+    </div>
+
+    <!-- 5. TEST -->
+    <div id="quiz" class="section">
+        <div id="quiz-container"></div>
+        <div id="quiz-score" style="font-size:1.2rem; font-weight:bold; color:var(--accent); margin-top:15px;"></div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="topicModal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-content">
+        <h2 id="modalTitle" style="color:var(--accent); margin-bottom:10px;"></h2>
+        <div id="modalBody"></div>
+        <div style="margin-top:20px; display:flex; justify-content:space-between;">
+            <button id="markDoneBtn" onclick="toggleDone()">✅ O'rganildi deb belgilash</button>
+            <button class="outline" onclick="closeModal()">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 — 11-sinf Astronomiya Interaktiv Darsligi | GitHub Pages uchun tayyorlandi
+</footer>
+
+<script>
+const topicsData = [
+    { id: 1, title: "1. Astronomiya nimani o'rganadi?", summary: "Osmon jismlari harakati, tuzilishi va Koinot evolyutsiyasi.", content: "Astronomiya yunoncha «astron» (yulduz) va «nomos» (qonun) so'zlaridan olingan. Asosiy bo'limlari: Astrometriya, Samoviy mexanika, Astrofizika, Kosmogoniya va Kosmologiya.", formula: "1 AB ≈ 149,6 mln km | 1 yorug'lik yili ≈ 9,46·10¹² km" },
+    { id: 2, title: "2. Osmon sferasi va sutkalik harakat", summary: "Yulduzlarning ko'rinma harakati va Fuko mayatnigi.", content: "Yer o'z o'qi atrofida g'arbdan sharqqa 23 soat 56 daqiqada (yulduz sutkasi) aylanadi. Qutb yulduzi olam qutbiga yaqin bo'lgani uchun deyarli qo'zg'almas ko'rinadi.", formula: "Fuko mayatnigi burilishi: Δφ = 360° · sin(φ)" },
+    { id: 3, title: "3. Osmon koordinatalari va yulduz kattaliklari", summary: "Gorizontal va ekvatorial koordinatalar, Pogson shkalasi.", content: "Gorizontal tizimda balandlik (h) va azimut (A), ekvatorial tizimda esa to'g'ri chiqish (α) va og'ish (δ) ishlatiladi. Pogson shkalasiga ko'ra 1m yulduz 6m yulduzdan 100 marta yorqin.", formula: "E₁ / E₂ = 2,512^(m₂ - m₁)" },
+    { id: 4, title: "4. Olam qutbi balandligi va kulminatsiya", summary: "Geografik kenglikni astronomik usulda aniqlash.", content: "Olam qutbining gorizontdan balandligi kuzatuvchi turgan joyning geografik kengligiga (φ) teng. Yoritgichning osmon meridianidan o'tishi kulminatsiya deyiladi.", formula: "h_max = 90° - φ + δ" },
+    { id: 5, title: "5. Oy harakati, fazalari va tutilishlar", summary: "Sinodik va siderik oy, Quyosh va Oy tutilishlari.", content: "Oyning yulduzlarga nisbatan aylanish davri 27,32 sutka (siderik oy), fazalar almashish davri esa 29,53 sutka (sinodik oy). Quyosh tutilishi faqat yangi oyda sodir bo'ladi.", formula: "O'rtacha masofa: 384 400 km" },
+    { id: 6, title: "6. Quyosh sistemasi va Kepler qonunlari", summary: "Planetalar harakati qonunlari va konfiguratsiyalar.", content: "1-qonun: Planetalar ellips bo'ylab aylanadi. 2-qonun: Radius-vektor teng vaqtda teng yuzalar chizadi. 3-qonun: Davrlar kvadrati katta yarim o'qlar kubiga proporsional.", formula: "T² = a³ (T — yilda, a — AB da)" },
+    { id: 7, title: "7. Kosmik tezliklar", summary: "1-, 2- va 3-kosmik tezliklar fizikasi.", content: "Yerning sun'iy yo'ldoshiga aylanish uchun 1-kosmik tezlik (7,9 km/s), Yer tortishishini yengish uchun 2-kosmik tezlik (11,2 km/s), Quyosh sistemasidan chiqish uchun 3-kosmik tezlik (16,7 km/s) kerak.", formula: "v₁ = √(GM/R) | v₂ = √2 · v₁" },
+    { id: 8, title: "8. Quyosh — eng yaqin yulduz", summary: "Quyoshning tuzilishi, fotosfera, xromosfera va termoyadro sintezi.", content: "Quyosh G2V sinfidagi sariq mitti yulduz. Sirt harorati 5800 K, yadrosida 15 mln K. Energiya manbayi — vodorodning geliyga aylanish termoyadro reaksiyasi.", formula: "L☉ ≈ 3,83 · 10²⁶ Vt | M☉ ≈ 1,99 · 10³⁰ kg" },
+    { id: 9, title: "9. Yulduzlar evolyutsiyasi va qora tuynuklar", summary: "Oq mittilar, neytron yulduzlar va Shvartsshild radiusi.", content: "Massasi 8 M☉ gacha bo'lgan yulduzlar oxirida oq mittiga, undan og'irlari esa o'ta yangi portlashidan so'ng neytron yulduz yoki qora tuynukka aylanadi.", formula: "R_s = 2GM / c²" },
+    { id: 10, title: "10. Koinotning kengayishi va Xabbl qonuni", summary: "Katta portlash nazariyasi, reliktiv nurlanish va qorong'i energiya.", content: "Edvin Xabbl uzoq galaktikalar spektrida qizil siljishni tahlil qilib, Koinot kengayayotganini isbotladi. Koinot yoshi taxminan 13,8 mlrd yil.", formula: "v = H₀ · d (H₀ ≈ 70 km/s/Mpk)" }
+];
+
+const formulaCardsData = [
+    { name: "Yillik parallaks orqali masofa", eq: "d = 1 / π", desc: "d — yulduzgacha masofa (parsekda, pk); π — yillik parallaks burchagi (yoy sekundida, ″)." },
+    { name: "Keplerning III qonuni", eq: "T₁² / T₂² = a₁³ / a₂³", desc: "T — sayyoraning Quyosh atrofida aylanish davri (yil); a — orbitaning katta yarim o'qi (AB)." },
+    { name: "Birinchi kosmik tezlik", eq: "v₁ = √(G·M / R)", desc: "G — gravitatsiya doimiysi; M — sayyora massasi; R — sayyora radiusi. Yer uchun v₁ ≈ 7,9 km/s." },
+    { name: "Ikkinchi kosmik tezlik", eq: "v₂ = √2 · v₁", desc: "Sayyora tortishish maydonini butunlay tark etish tezligi. Yer uchun v₂ ≈ 11,2 km/s." },
+    { name: "Pogson formulasi", eq: "E₁ / E₂ = 2,512^(m₂ - m₁)", desc: "E₁, E₂ — yulduzlar yaratgan yoritilganlik; m₁, m₂ — ko'rinma yulduz kattaliklari." },
+    { name: "Absolut yulduz kattaligi", eq: "M = m + 5 - 5·lg(d)", desc: "M — 10 parsek masofadagi yulduz kattaligi; m — ko'rinma kattalik; d — masofa (pk)." },
+    { name: "Yoritgichning yuqori kulminatsiyasi", eq: "h_max = 90° - φ + δ", desc: "h_max — gorizontdan maksimal balandlik; φ — geografik kenglik; δ — yulduz og'ishi." },
+    { name: "Stefan-Bolsman qonuni", eq: "L = 4πR² · σ · T⁴", desc: "L — yulduz yorqinligi (Vt); R — radiusi; T — sirt harorati (K); σ = 5,67·10⁻⁸ Vt/(m²·K⁴)." },
+    { name: "Shvartsshild (gravitatsion) radius", eq: "R_s = 2·G·M / c²", desc: "Qora tuynuk hodisalar gorizonti radiusi. M — jism massasi; c — yorug'lik tezligi (3·10⁸ m/s)." },
+    { name: "Xabbl qonuni", eq: "v = H₀ · d", desc: "v — galaktikaning uzoqlashish tezligi (km/s); d — masofa (Mpk); H₀ ≈ 70 km/(s·Mpk)." }
+];
+
+const glossaryData = [
+    { term: "Aberratsiya (yorug'lik)", cat: "Astrometriya", def: "Yerning orbita bo'ylab harakati va yorug'lik tezligining chekliligi tufayli yulduzlarning osmon sferasidagi ko'rinma siljishi." },
+    { term: "Afeliya", cat: "Samoviy mexanika", def: "Sayyora, kometa yoki asteroid orbitasining Quyoshdan eng uzoqda joylashgan nuqtasi." },
+    { term: "Astronomik birlik (AB)", cat: "O'lchov birligi", def: "Yerdan Quyoshgacha bo'lgan o'rtacha masofaga teng uzunlik birligi (1 AB ≈ 149 597 870 km)." },
+    { term: "Azimut (A)", cat: "Koordinatalar", def: "Osmon meridianining janubiy qismidan yoritgich vertikaligacha soat strelkasi yo'nalishida o'lchanadigan burchak (0° dan 360° gacha)." },
+    { term: "Ekliptika", cat: "Osmon sferasi", def: "Quyoshning yulduzlar fonida osmon sferasi bo'ylab bir yil davomida bosib o'tadigan ko'rinma katta aylanasi." },
+    { term: "Ekzoplaneta", cat: "Astrofizika", def: "Quyosh sistemasidan tashqarida, boshqa yulduzlar atrofida aylanuvchi sayyora." },
+    { term: "Fotosfera", cat: "Quyosh fizikasi", def: "Quyosh atmosferasining eng quyi va zich qatlami; biz ko'radigan asosiy yorug'lik shu qatlamdan chiqadi (T ≈ 5800 K)." },
+    { term: "Kulminatsiya", cat: "Astrometriya", def: "Osmon yoritgichining sutkalik harakati davomida osmon meridianidan o'tish payti (eng baland va eng past nuqtalar)." },
+    { term: "Kvazar", cat: "Kosmologiya", def: "Koinotning eng olis qismlarida joylashgan, markazida o'ta massiv qora tuynuk bo'lgan o'ta yorqin faol galaktika yadrosi." },
+    { term: "Nadir", cat: "Osmon sferasi", def: "Osmon sferasining kuzatuvchi oyoqlari ostida, zenitga diametral qarama-qarshi joylashgan nuqtasi." },
+    { term: "Oq mitti", cat: "Yulduzlar evolyutsiyasi", def: "Termoyadro yoqilg'isi tugagan kichik va o'rta massali yulduzlarning o'ta zich (1 sm³ da tonnalab massa) qoldig'i." },
+    { term: "Parallaks (yillik)", cat: "Astrometriya", def: "Yulduzdan Yer orbitasining katta yarim o'qi (1 AB) ko'rinadigan burchak. Yulduzgacha masofani o'lchashda ishlatiladi." },
+    { term: "Parsek (pk)", cat: "O'lchov birligi", def: "Yillik parallaksi 1 yoy sekundiga (1″) teng bo'lgan yulduzgacha bo'lgan masofa. 1 pk ≈ 3,26 yorug'lik yili ≈ 3,086·10¹³ km." },
+    { term: "Perigeliya", cat: "Samoviy mexanika", def: "Sayyora yoki boshqa osmon jismi orbitasining Quyoshga eng yaqin nuqtasi." },
+    { term: "Pulsar", cat: "Astrofizika", def: "O'z o'qi atrofida juda katta tezlikda aylanuvchi va qutblaridan davriy ravishda radio/rentgen nurlari taratuvchi neytron yulduz." },
+    { term: "Reliktiv nurlanish", cat: "Kosmologiya", def: "Katta portlashdan taxminan 380 ming yil o'tgach paydo bo'lgan va hozirgacha Koinotni to'ldirib turgan mikroto'lqinli fon nurlanishi (T ≈ 2,725 K)." },
+    { term: "Siderik davr", cat: "Samoviy mexanika", def: "Sayyora yoki Oyning uzoq qo'zg'almas yulduzlarga nisbatan to'liq bir marta aylanib chiqish vaqti." },
+    { term: "Zenit", cat: "Osmon sferasi", def: "Kuzatuvchining tik boshi ustida osmon sferasi bilan kesishuvchi nuqta (balandligi h = +90°)." }
+];
+
+const quizData = [
+    { q: "1 astronomik birlik (1 AB) taxminan nimaga teng?", opts: ["384 000 km", "149,6 mln km", "9,46 trln km"], ans: 1 },
+    { q: "Yer sirti yaqinida birinchi kosmik tezlik qancha?", opts: ["11,2 km/s", "16,7 km/s", "7,9 km/s"], ans: 2 },
+    { q: "Yillik parallaksi 1 yoy sekundiga (1″) teng bo'lgan masofa nima deb ataladi?", opts: ["Yorug'lik yili", "Parsek", "Astronomik birlik"], ans: 1 },
+    { q: "Sayyora orbitasining Quyoshga eng yaqin nuqtasi nima deyiladi?", opts: ["Afeliya", "Perigeliya", "Zenit"], ans: 1 },
+    { q: "Olam qutbining gorizontdan balandligi nimaga teng?", opts: ["Joyning geografik kengligiga (φ)", "90° ga", "Ekliptika og'ishiga (23,4°)"], ans: 0 }
+];
+
+let completed = JSON.parse(localStorage.getItem('astro_done') || '[]');
+let currentTopicId = null;
+
+function renderTopics() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const grid = document.getElementById('topics-grid');
+    grid.innerHTML = '';
+    topicsData.filter(t => t.title.toLowerCase().includes(query) || t.summary.toLowerCase().includes(query)).forEach(t => {
+        const isDone = completed.includes(t.id);
+        grid.innerHTML += `
+            <div class="card">
+                <div>
+                    <h3>${t.title}</h3>
+                    <p>${t.summary}</p>
+                </div>
+                <div class="card-footer">
+                    <span style="font-size:0.85rem; color:${isDone ? 'var(--success)' : 'var(--muted)'}">
+                        ${isDone ? '✅ O'rganilgan' : '⏳ O'qilmagan'}
+                    </span>
+                    <button onclick="openModal(${t.id})">O'qish →</button>
+                </div>
+            </div>`;
+    });
+    updateProgress();
+}
+
+function renderFormulaCards() {
+    const grid = document.getElementById('formula-cards-grid');
+    grid.innerHTML = '';
+    formulaCardsData.forEach(f => {
+        grid.innerHTML += `
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <strong style="font-size:1.05rem;">${f.name}</strong>
+                        <div class="formula-math">${f.eq}</div>
+                        <span class="flip-hint">🔄 Izohini ko'rish uchun bosing</span>
+                    </div>
+                    <div class="flip-card-back">
+                        <strong style="color:var(--accent); margin-bottom:8px;">${f.name}</strong>
+                        <p style="font-size:0.9rem; line-height:1.5;">${f.desc}</p>
+                        <span class="flip-hint">🔄 Orqaga qaytarish</span>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+function renderGlossary() {
+    const q = document.getElementById('glossarySearch').value.toLowerCase();
+    const list = document.getElementById('glossary-list');
+    list.innerHTML = '';
+    const filtered = glossaryData.filter(g => g.term.toLowerCase().includes(q) || g.def.toLowerCase().includes(q) || g.cat.toLowerCase().includes(q));
+    if (filtered.length === 0) {
+        list.innerHTML = `<p style="color:var(--muted); text-align:center; padding:20px;">Hech qanday atama topilmadi.</p>`;
+        return;
+    }
+    filtered.forEach(g => {
+        list.innerHTML += `
+            <div class="glossary-item">
+                <div class="glossary-term">
+                    <span>${g.term}</span>
+                    <span class="glossary-tag">${g.cat}</span>
+                </div>
+                <p style="color:var(--muted); font-size:0.95rem; margin-top:6px;">${g.def}</p>
+            </div>`;
+    });
+}
+
+function openModal(id) {
+    currentTopicId = id;
+    const t = topicsData.find(x => x.id === id);
+    document.getElementById('modalTitle').innerText = t.title;
+    document.getElementById('modalBody').innerHTML = `<p>${t.content}</p><div class="formula-box"><strong>Asosiy formula / kattalik:</strong><br>${t.formula}</div>`;
+    document.getElementById('markDoneBtn').innerText = completed.includes(id) ? "❌ O'qilmagan qilish" : "✅ O'rganildi deb belgilash";
+    document.getElementById('topicModal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('topicModal').classList.remove('open'); }
+
+function toggleDone() {
+    if (completed.includes(currentTopicId)) {
+        completed = completed.filter(x => x !== currentTopicId);
+    } else {
+        completed.push(currentTopicId);
+    }
+    localStorage.setItem('astro_done', JSON.stringify(completed));
+    renderTopics();
+    openModal(currentTopicId);
+}
+
+function updateProgress() {
+    const pct = Math.round((completed.length / topicsData.length) * 100);
+    document.getElementById('progress-badge').innerText = `${pct}% o'rganildi`;
+    document.getElementById('done-count').innerText = `${completed.length} / ${topicsData.length}`;
+}
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+}
+
+function toggleTheme() { document.body.classList.toggle('light'); }
+
+function calcRocket() {
+    const u = parseFloat(document.getElementById('uSlider').value);
+    const m = parseFloat(document.getElementById('mSlider').value);
+    document.getElementById('uVal').innerText = u.toFixed(1);
+    document.getElementById('mVal').innerText = m;
+    const dv = u * Math.log(m);
+    let status = dv >= 11.2 ? "2-kosmik tezlikka yetdi (sayyoralararo parvoz)!" : dv >= 7.9 ? "1-kosmik tezlikka yetdi (Yer orbitasi)!" : "Orbitaga chiqish uchun yetarli emas.";
+    document.getElementById('rocketResult').innerText = `Natija: Δv = ${dv.toFixed(2)} km/s — ${status}`;
+}
+
+const canvas = document.getElementById('solarCanvas');
+const ctx = canvas.getContext('2d');
+let angle = 0;
+function drawSolar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2); ctx.fillStyle = '#facc15'; ctx.fill();
+    
+    const planets = [
+        { r: 45, size: 4, speed: 4.1, color: '#94a3b8' },
+        { r: 75, size: 6, speed: 1.6, color: '#fbbf24' },
+        { r: 105, size: 6.5, speed: 1.0, color: '#38bdf8' },
+        { r: 140, size: 5, speed: 0.53, color: '#f87171' }
+    ];
+    const spd = parseFloat(document.getElementById('speedSlider').value);
+    planets.forEach(p => {
+        ctx.beginPath(); ctx.arc(cx, cy, p.r, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.stroke();
+        const px = cx + Math.cos(angle * p.speed) * p.r;
+        const py = cy + Math.sin(angle * p.speed) * p.r;
+        ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
+    });
+    angle += 0.015 * spd;
+    requestAnimationFrame(drawSolar);
+}
+
+let score = 0, answered = 0;
+function renderQuiz() {
+    const qc = document.getElementById('quiz-container');
+    quizData.forEach((item, idx) => {
+        let html = `<div class="quiz-q"><strong>${idx + 1}. ${item.q}</strong>`;
+        item.opts.forEach((opt, oIdx) => {
+            html += `<button class="option" onclick="checkAns(this, ${idx}, ${oIdx})">${opt}</button>`;
+        });
+        html += `</div>`;
+        qc.innerHTML += html;
+    });
+}
+function checkAns(btn, qIdx, oIdx) {
+    const parent = btn.parentElement;
+    if (parent.dataset.done) return;
+    parent.dataset.done = "true";
+    answered++;
+    if (oIdx === quizData[qIdx].ans) {
+        btn.classList.add('correct');
+        score++;
+    } else {
+        btn.classList.add('wrong');
+        parent.querySelectorAll('.option')[quizData[qIdx].ans].classList.add('correct');
+    }
+    if (answered === quizData.length) {
+        document.getElementById('quiz-score').innerText = `Yakuniy natija: ${quizData.length} tadan ${score} ta to'g'ri!`;
+    }
+}
+
+renderTopics();
+renderFormulaCards();
+renderGlossary();
+renderQuiz();
+drawSolar();
+</script>
+</body>
+</html>
